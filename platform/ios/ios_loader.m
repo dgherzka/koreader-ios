@@ -69,6 +69,12 @@ int main(int argc, char *argv[]) {
          * events; we don't need fake mouse ones. */
         setenv("SDL_TOUCH_MOUSE_EVENTS", "0", 1);
 
+        /* A fullscreen SDL window defers the system's edge gestures, so
+         * the first swipe up from the bottom goes to KOReader and only a
+         * second one leaves it. Hide the home indicator while reading
+         * but leave the gestures to the system, as other apps do. */
+        setenv("SDL_IOS_HIDE_HOME_INDICATOR", "1", 1);
+
         /* Tell Lua plugins (e.g. iosfilepicker.koplugin) we're on iOS.
          * KOReader still self-identifies as the SDL emulator otherwise. */
         setenv("KO_IOS", "1", 1);
@@ -111,6 +117,7 @@ quit:
         unsetenv("KO_HOME");
         unsetenv("SDL_FULLSCREEN");
         unsetenv("SDL_TOUCH_MOUSE_EVENTS");
+        unsetenv("SDL_IOS_HIDE_HOME_INDICATOR");
         unsetenv("KO_IOS");
         return retval;
     }

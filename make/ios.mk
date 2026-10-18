@@ -17,11 +17,17 @@ ios-check-prereqs:
 update: ios-check-prereqs all
 	$(CURDIR)/platform/ios/do_ios_bundle.sh $(INSTALL_DIR)
 
+# The latest tag, or the month of the last commit in a clone without tags.
+IOS_VERSION = $(or $(patsubst v%,%,$(shell git describe --tags --abbrev=0 2>/dev/null)),$(shell git log -1 --format=%cd --date=format:%Y.%m))
+
 # Generate KOReader.xcodeproj at the repo root from platform/ios/project.yml.
 # Depends on `all` so the staging tree + base/build/<machine>/libs/ exist
 # (the project's pre-build script also calls `make TARGET=ios base`, but
 # having them present at generation time avoids confusing first-time errors).
 xcodeproj: ios-check-prereqs all
+	sed -e "s|@VERSION@|$(IOS_VERSION)|g" \
+		-e "s|<string>rocks.koreader.ios</string>|<string>\$$(PRODUCT_BUNDLE_IDENTIFIER)</string>|" \
+		$(IOS_DIR)/Info.plist.in >$(IOS_DIR)/Info.plist
 	xcodegen generate \
 		--spec $(IOS_DIR)/project.yml \
 		--project $(CURDIR) \
